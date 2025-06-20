@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinnisvaraportfelli Arendamise Strateegia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- 
+    Narrative Plan & Structure:
+    1.  Introduction/Hook: Grab attention with the core strategic goal - optimizing a real estate portfolio.
+    2.  Portfolio Overview: Introduce the two key assets (Maardu apartment, Tallinn cellar) and the initial financial state.
+    3.  Maardu Decision Matrix: A deep dive into the "Sell vs. Renovate & Rent" dilemma. This is the core quantitative comparison.
+    4.  Tallinn Development Challenges: Visualize the complex regulatory, legal, and technical hurdles for the cellar project.
+    5.  Strategic Roadmap: Present the recommended phased action plan as a clear, easy-to-follow process.
+    6.  Financials & Funding: Briefly touch on the funding options comparison.
+    7.  Conclusion/Next Steps: Summarize the key recommendation and call to action.
+
+    Visualization Choices (NO SVG, NO MERMAID JS):
+    -   Maardu Net Capital Comparison (Sell vs. Renovate): Goal: Compare. Chosen Viz: Donut Chart (Chart.js). Justification: Excellent for showing the composition of the sale price, visually highlighting the large tax portion and comparing the resulting net capital to the renovation investment. Confirmed NO SVG.
+    -   Maardu Annual Cash Flow (Rent): Goal: Compare. Chosen Viz: Bar Chart (Chart.js). Justification: Clearly compares annual gross rent, operational costs, and the resulting net cash flow (NOI). Confirmed NO SVG.
+    -   Tallinn Development - Elamispind vs. Äripind: Goal: Compare. Chosen Viz: Grouped Bar Chart (Chart.js). Justification: Directly compares the estimated renovation costs and potential monthly rent for the two development options side-by-side. Confirmed NO SVG.
+    -   Tallinn Development - Technical/Regulatory Checklist: Goal: Organize. Chosen Viz: Styled HTML Table. Justification: A table is the clearest way to present a structured list of complex requirements, their status, and potential solutions. Confirmed NO SVG.
+    -   Strategic Roadmap/Timeline: Goal: Organize. Chosen Viz: Flow Chart (implemented with structured HTML/CSS with Tailwind). Justification: Visually represents the sequential, phased nature of the recommended strategy, highlighting dependencies. Confirmed NO SVG, NO MERMAID JS.
+    -   Funding Options Comparison: Goal: Compare. Chosen Viz: Styled HTML Table. Justification: A table effectively contrasts the key features (interest rate, speed, pros/cons) of different financing methods. Confirmed NO SVG.
+    -   Big Numbers (Tax hit, ROI): Goal: Inform. Chosen Viz: Large text blocks. Justification: Immediately draws attention to the most critical single data points. Confirmed NO SVG.
+
+    Color Palette Selection:
+    -   Chosen Palette: "Energetic & Playful" (#00A6A6, #F2A413, #E65D34, #73303C, #402A2C) combined with a neutral base.
+    -   Justification: The source material is a serious business strategy, but the goal is growth and development. A vibrant, high-contrast palette makes the data engaging and modern, preventing the infographic from feeling dry or academic. The chosen colors have strong contrast, ensuring readability for charts and text.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .flow-step {
+            border-left-width: 4px;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: -11px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            background-color: white;
+            border-width: 4px;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-[#402A2C] mb-2">Kinnisvaraportfelli Arendamise Strateegiline Teekaart</h1>
+            <p class="text-lg text-gray-600">Põhjalik analüüs ja optimeeritud tegevuskava Maardu ja Tallinna varade väärtuse maksimeerimiseks.</p>
+        </header>
+
+        <main class="space-y-16">
+
+            <section id="maardu" class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-[#00A6A6] mb-1">Maardu Võimalus: Müük vs. Rent</h2>
+                <p class="text-gray-600 mb-8">Põhjalik finantsanalüüs kahe peamise strateegia vahel, arvestades kriitilist maksukohustust.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4 text-[#E65D34]">Stsenaarium 1: Müük</h3>
+                        <div class="chart-container h-64 md:h-80 mx-auto">
+                            <canvas id="maarduSaleChart"></canvas>
+                        </div>
+                        <div class="text-center mt-4">
+                             <p class="text-gray-600 max-w-md mx-auto">Kingitud vara müügil rakendub tulumaks kogu müügitulult, vähendades drastiliselt vaba kapitali. Hinnanguline müügihind on 100 000 €.</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4 text-[#00A6A6]">Stsenaarium 2: Renoveerimine ja Üür</h3>
+                         <div class="grid grid-cols-2 gap-4 text-center my-6">
+                            <div class="bg-teal-50 p-4 rounded-lg">
+                                <p class="text-sm text-teal-700">Investeering (Remont)</p>
+                                <p class="text-3xl font-bold text-[#00A6A6]">~35 000 €</p>
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-lg">
+                                <p class="text-sm text-amber-700">Aastane Netorahavoog (NOI)</p>
+                                <p class="text-3xl font-bold text-[#F2A413]">~4 838 €</p>
+                            </div>
+                        </div>
+                        <div class="chart-container h-64 md:h-80 mx-auto">
+                            <canvas id="maarduRentChart"></canvas>
+                        </div>
+                       <div class="text-center mt-4">
+                             <p class="text-gray-600 max-w-md mx-auto">Renoveerimine ja pikaajaline üür loovad stabiilse rahavoo ja pakuvad erakordselt kõrget kapitali tootlust (Net Cap Rate ~13.8%).</p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-[#402A2C] text-white rounded-lg p-6 text-center">
+                    <h4 class="text-2xl font-bold">Strateegiline Soovitus</h4>
+                    <p class="mt-2 text-lg">Korteri **renoveerimine ja väljaüürimine** on selgelt eelistatud strateegia. See väldib kohest ~19 400 € maksukulu, loob stabiilse positiivse rahavoo ja parandab ettevõtte finantspositsiooni edasisteks projektideks.</p>
+                </div>
+            </section>
+
+            <section id="tallinn" class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-[#E65D34] mb-1">Tallinna Arendus: Väljakutsed ja Valikud</h2>
+                <p class="text-gray-600 mb-8">Keldripinna arendus kätkeb endas märkimisväärseid regulatiivseid ja tehnilisi takistusi, mis vajavad hoolikat planeerimist.</p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4 text-[#73303C]">Kriitilised Nõuded Eluruumidele</h3>
+                        <div class="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-r-lg mb-6">
+                            <p class="font-bold">Korteriühistu 100% Nõusolek</p>
+                            <p>Kaasomandi sihtotstarbe muutmine nõuab kõikide korteriomanike nõusolekut. See on projekti esimene ja kõige olulisem värav.</p>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-2xl mr-4">📏</span>
+                                <div><span class="font-semibold">Lae kõrgus:</span> Minimaalselt 2,5 meetrit.</div>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-2xl mr-4">☀️</span>
+                                <div><span class="font-semibold">Loomulik valgus:</span> Igas elu- ja magamistoas peab olema avatav aken.</div>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                               <span class="text-2xl mr-4">💨</span>
+                                <div><span class="font-semibold">Ventilatsioon ja niiskus:</span> Vajalik on sundventilatsioon ja kapitaalne hüdroisolatsioon.</div>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-2xl mr-4">☢️</span>
+                                <div><span class="font-semibold">Radoonioht:</span> Kohustuslik on mõõta radoonitase ja paigaldada vajadusel tõrjesüsteem.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4 text-[#73303C]">Arendusvalikute Võrdlus</h3>
+                        <p class="text-center text-gray-600 mb-4">Eluruumide ehitus on tulusam, kuid ka märkimisväärselt kulukam ja riskantsem kui äripinna rajamine.</p>
+                        <div class="chart-container h-80 md:h-[420px] mx-auto">
+                            <canvas id="tallinnOptionsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="roadmap" class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-[#73303C] mb-1">Optimeeritud Strateegiline Teekaart</h2>
+                <p class="text-gray-600 mb-8">Etapiviisiline ja loogiline tegevuskava riskide maandamiseks ja väärtuse maksimeerimiseks.</p>
+                <div class="space-y-8">
+                    <div class="flow-step border-[#00A6A6]">
+                        <div class="flow-step-content ml-4">
+                            <span class="text-sm font-semibold text-[#00A6A6]">FAAS 0: Kuu 1</span>
+                            <h4 class="text-xl font-bold text-[#402A2C]">Kohene Hoolsuskohustus (Due Diligence)</h4>
+                            <ul class="list-disc list-inside text-gray-600 mt-2">
+                                <li>Maardu: Korteri hindamine ja maksunõustamine.</li>
+                                <li>Tallinn: KÜ põhikirja analüüs ja EHR eelanalüüs juristi ja tehnilise konsultandiga.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="flow-step border-[#F2A413]">
+                        <div class="flow-step-content ml-4">
+                            <span class="text-sm font-semibold text-[#F2A413]">FAAS 1: Kuu 2-4</span>
+                            <h4 class="text-xl font-bold text-[#402A2C]">Otsused ja Alusload</h4>
+                            <ul class="list-disc list-inside text-gray-600 mt-2">
+                                <li>Maardu: Lõplik otsus "Müü vs. Rent" ja tegevuse alustamine.</li>
+                                <li>Tallinn: KÜ üldkoosoleku korraldamine ja arendusloa saamine.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <div class="flow-step border-[#E65D34]">
+                        <div class="flow-step-content ml-4">
+                            <span class="text-sm font-semibold text-[#E65D34]">FAAS 2: Kuu 4-9</span>
+                            <h4 class="text-xl font-bold text-[#402A2C]">Teostatavusuuring ja Load</h4>
+                             <ul class="list-disc list-inside text-gray-600 mt-2">
+                                <li>Tallinna kelder: Detailne tehniline ja arhitektuurne uuring (pärast KÜ luba).</li>
+                                <li>Kogu hoone: Kasutusloa protsessi ametlik algatamine.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="flow-step border-[#73303C]">
+                        <div class="flow-step-content ml-4">
+                            <span class="text-sm font-semibold text-[#73303C]">FAAS 3-5: Kuu 10+</span>
+                            <h4 class="text-xl font-bold text-[#402A2C]">Finantseerimine, Ehitus ja Lõpetamine</h4>
+                             <ul class="list-disc list-inside text-gray-600 mt-2">
+                                <li>Kapitali kaasamine (pank, ühisrahastus).</li>
+                                <li>Ehitushanke korraldamine ja tööde teostus.</li>
+                                <li>Valminud pindadele kasutuslubade taotlemine ja monetiseerimine.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+              return label.join(' ');
+            }
+            return label;
+        };
+
+        const processLabels = (labels) => {
+            return labels.map(label => {
+                if (label.length > 16) {
+                    const words = label.split(' ');
+                    let currentLine = '';
+                    const lines = [];
+                    words.forEach(word => {
+                        if ((currentLine + ' ' + word).length > 16 && currentLine.length > 0) {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine = (currentLine + ' ' + word).trim();
+                        }
+                    });
+                    lines.push(currentLine);
+                    return lines;
+                }
+                return label;
+            });
+        };
+
+        const maarduSaleCtx = document.getElementById('maarduSaleChart').getContext('2d');
+        new Chart(maarduSaleCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Netokapital', 'Tulumaksukohustus', 'Müügikulud'],
+                datasets: [{
+                    label: 'Müügist saadav kapital (€)',
+                    data: [77600, 19400, 3000],
+                    backgroundColor: ['#00A6A6', '#E65D34', '#F2A413'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 4,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: { title: tooltipTitleCallback },
+                        padding: 12,
+                        boxPadding: 4,
+                        titleFont: { size: 16 },
+                        bodyFont: { size: 14 }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Müügihinna 100 000 € jaotus',
+                        font: { size: 16, weight: '600' },
+                        padding: { top: 10, bottom: 20 }
+                    }
+                }
+            }
+        });
+
+        const maarduRentCtx = document.getElementById('maarduRentChart').getContext('2d');
+        new Chart(maarduRentCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Aastane brutotulu', 'Tegevuskulud', 'Netorahavoog (NOI)'],
+                datasets: [{
+                    label: 'Summa (€)',
+                    data: [7200, -1440, 4838],
+                    backgroundColor: (context) => {
+                        const value = context.dataset.data[context.dataIndex];
+                        return value > 0 ? '#00A6A6' : '#E65D34';
+                    },
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Summa (€)' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: { title: tooltipTitleCallback },
+                        padding: 12,
+                        boxPadding: 4
+                    },
+                    title: {
+                        display: true,
+                        text: 'Aastane rahavoog üürist',
+                        font: { size: 16, weight: '600' },
+                        padding: { top: 10, bottom: 20 }
+                    }
+                }
+            }
+        });
+        
+        const tallinnOptionsCtx = document.getElementById('tallinnOptionsChart').getContext('2d');
+        new Chart(tallinnOptionsCtx, {
+            type: 'bar',
+            data: {
+                labels: processLabels(['Ehituskulu (€)', 'Igakuine üüritulu (€)']),
+                datasets: [
+                    {
+                        label: 'Äripind',
+                        data: [25000, 450],
+                        backgroundColor: '#F2A413',
+                        borderRadius: 6
+                    },
+                    {
+                        label: '2 Eluruumi',
+                        data: [60000, 1050],
+                        backgroundColor: '#E65D34',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                     y: {
+                        beginAtZero: true,
+                        type: 'logarithmic',
+                        ticks: {
+                            callback: function(value, index, values) {
+                                if (value === 100000 || value === 10000 || value === 1000 || value === 100 || value === 10) {
+                                    return value.toLocaleString() + '€';
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: { title: tooltipTitleCallback },
+                        padding: 12,
+                        boxPadding: 4,
+                        mode: 'index',
+                        intersect: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Kulude ja tulude hinnanguline võrdlus',
+                        font: { size: 16, weight: '600' },
+                        padding: { top: 10, bottom: 20 }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
